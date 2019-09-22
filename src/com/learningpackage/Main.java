@@ -36,34 +36,38 @@ public class Main {
             System.out.print("Cannot pass in a non-number parameter for ");
         }
 
-        if (inputType == InputType.LOAN) {
-            System.out.println("loans!");
-        }
-        else if (inputType == InputType.RATE) {
-            System.out.println("rate!");
-        }
-        else {
-            System.out.println("years!");
+        switch (inputType) {
+            case LOAN:
+                System.out.println("loans!");
+                break;
+            case RATE:
+                System.out.println("rate!");
+                break;
+            case YEARS:
+                System.out.println("years!");
+                break;
         }
     }
 
     // Takes input from user for different values asked for and checks it
     // Returns -1, if user input does not meet requirements
-    public static double takeInput(InputType inputType) {
+    public static double takeInput(InputType inputType, Scanner input) {
         // Grab user input
-        Scanner input = new Scanner(System.in);
         double numReadFromUser = 0;
         try {
             numReadFromUser = input.nextDouble();
         }
         catch (InputMismatchException e) {
             printError(inputType, ErrorType.NOTNUM);
+            // Can't close input in finally since close() shuts down System.In as well
+            input.close();
             return -1;
         }
 
         // Make sure the input from user is not negative
         if (numReadFromUser < 0 ) {
             printError(inputType, ErrorType.NOTPOSITIVE);
+            input.close();
             return -1;
         }
         return numReadFromUser;
@@ -74,16 +78,18 @@ public class Main {
         final byte monthsInYear = 12;
         final byte percent = 100;
 
+        Scanner input = new Scanner(System.in);
+
         // Loan Amount
-        System.out.print("Type in your loan amount: ");
-        double loan = takeInput(InputType.LOAN);
+        System.out.print("Type in your loan amount: $");
+        double loan = takeInput(InputType.LOAN, input);
         if (loan == -1) {
             return;
         }
 
         // Interest Rate
         System.out.print("Annual Interest Rate: ");
-        double rate = takeInput(InputType.RATE);
+        double rate = takeInput(InputType.RATE, input);
         if (rate == -1) {
             return;
         }
@@ -91,7 +97,7 @@ public class Main {
 
         // Years the loan will be out for
         System.out.print("Years: ");
-        double years = takeInput(InputType.YEARS);
+        double years = takeInput(InputType.YEARS, input);
         if (years == -1) {
             return;
         }
@@ -105,5 +111,8 @@ public class Main {
         DecimalFormat df = new DecimalFormat();
         df.setMaximumFractionDigits(2);
         System.out.println("Mortgage: $" +  df.format(mortgage));
+
+        // Clean up Scanner Object
+        input.close();
     }
 }
